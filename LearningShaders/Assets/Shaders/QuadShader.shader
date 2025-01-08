@@ -40,7 +40,7 @@ Shader "Intro/QuadShader"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTexture);
-                o.uv += _AnimateXY.xy * float2(_Time.y,0);
+                o.uv += _AnimateXY.xy * frac(float2(_Time.y,_Time.y));
                 return o;
 
             }
