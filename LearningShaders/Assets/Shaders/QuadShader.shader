@@ -4,12 +4,24 @@ Shader "Intro/QuadShader"
     {
         _MainTexture("Main Texture", 2D) = "blue"
         _AnimateXY("Animation", Vector) = (0,0,0,0)
+
+        [Enum(UnityEngine.Rendering.BlendMode)]
+        _SrcFactor("Source Factor", float) = 5
+
+        [Enum(UnityEngine.Rendering.BlendMode)]
+        _DstFactor("Destination Factor", float) = 10
+
+        [Enum(UnityEngine.Rendering.BlendOp)]
+        _Opp("Operation", float) = 0
+
+
     }
     SubShader
     {
         Tags { "RenderType"="Opaque" }
         LOD 100
-        Blend SrcAlpha OneMinusSrcAlpha
+        Blend [_SrcFactor] [_DstFactor]
+        BlendOp [_Opp]
 
         Pass
         {
