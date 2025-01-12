@@ -9,12 +9,14 @@ Shader "Intro/QuadShader"
     {
         Tags { "RenderType"="Opaque" }
         LOD 100
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+
 
             #include "UnityCG.cginc"
 
