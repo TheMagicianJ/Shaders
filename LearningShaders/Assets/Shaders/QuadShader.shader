@@ -7,8 +7,10 @@ Shader "Intro/QuadShader"
 
         _AnimateXY("Animation", Vector) = (0,0,0,0)
 
-        _RevealValue("Reveal Value", float) = 0
+        _HiddenValue("Hidden Value", float) = 0
         _FeatherValue("Feather Value", float) = 0
+
+        _ErodeColor("Erode Color", Vector) = (0,0,1,1)
 
         [Enum(UnityEngine.Rendering.BlendMode)]
         _SrcFactor("Source Factor", float) = 5
@@ -26,7 +28,7 @@ Shader "Intro/QuadShader"
         Tags { "RenderType"="Opaque" }
         LOD 100
 
-        //Blending
+        // Blending
         Blend [_SrcFactor] [_DstFactor]
         BlendOp [_Opp]
 
@@ -36,23 +38,26 @@ Shader "Intro/QuadShader"
             #pragma vertex vert
             #pragma fragment frag
 
-
             #include "UnityCG.cginc"
-            //Main Texture
+            // Main Texture
             sampler2D _MainTexture;
             float4 _MainTexture_ST;
 
-            //Mask Texture
+            // Mask Texture
             sampler2D _MaskTexture;
             float4 _MaskTexture_ST;
 
-            //Animation
+            // Animation
             float4 _AnimateXY;
 
-            //Mask Step Function
-            float _RevealValue, _FeatherValue;
+            // Mask Step Function
+            float _HiddenValue, _FeatherValue;
 
-            //Data for the mesh. Vertices
+            // Erosion
+            float4 _ErodeColor;
+
+
+            // Data for the mesh. Vertices
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -66,7 +71,7 @@ Shader "Intro/QuadShader"
                 float4 vertex : SV_POSITION;
             };
 
-            //Vertext Shader
+            // Vertext Shader
             v2f vert (appdata v)
             {
                 v2f o;
@@ -78,17 +83,27 @@ Shader "Intro/QuadShader"
 
             }
             
-            //Fragment Shader
+            // Fragment Shader
             fixed4 frag (v2f i) : SV_Target
             {
                 float4 uvs = i.uv;
                 fixed4 textureColor = tex2D(_MainTexture, uvs.xy);
                 float4 maskColor = tex2D(_MaskTexture, uvs.zw);
                 
-                //Step Function
-                float reveal = smoothstep(_RevealValue - _FeatherValue, _RevealValue + _FeatherValue, maskColor.r) ;
+                // Step Functions
+                // smoothstep(x,y,Z) - If z is lower than x it returns 0 and if its higher than y it returns 1. Between if z is inbetween x and y it reurns a corresponding value that is interpolated between 1 and 0. Basically max value returned is 1 and lowest value is 0.
+                // step(x,y) if - If y is greater than or equal to x return 1 otherwise return 0.
+                
+                float hidden = smoothstep(maskColor.r - _FeatherValue, maskColor.r + _FeatherValue, _HiddenValue);
+                float hiddenTop = step(  _HiddenValue - _FeatherValue,maskColor.r);
+                float hiddenBottom = step( _HiddenValue + _FeatherValue, maskColor.r);
+                float hiddenDifference = hiddenTop - hiddenBottom;
+                //return fixed4(0,0,revealDifference,1);
 
-                return fixed4(textureColor.rgb, textureColor.a * reveal);
+                // Lerp Function
+                // lerp(x,y,z) - Linearly interpolates betwen x and y. Returns the corresponding interpolated value to the input z. Z is clamped between 0 and 1.
+                float3 lerpColor = lerp(textureColor, _ErodeColor, hiddenDifference);
+                return fixed4(lerpColor, textureColor.a * hiddenTop);
             }
             ENDCG
         }
