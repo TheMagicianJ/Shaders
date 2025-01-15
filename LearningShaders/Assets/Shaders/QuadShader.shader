@@ -6,6 +6,8 @@ Shader "Intro/QuadShader"
         _MaskTexture("Mask Texture", 2D) = "blue"
 
         _AnimateXY("Animation", Vector) = (0,0,0,0)
+        _RevealAnimation("Reveal Animation", float) = 0
+        _RevealSpeed("Reveal Speed", float) = 1
 
         _HiddenValue("Hidden Value", float) = 0
         _FeatherValue("Feather Value", float) = 0
@@ -49,6 +51,8 @@ Shader "Intro/QuadShader"
 
             // Animation
             float4 _AnimateXY;
+            float _RevealAnimation;
+            float _RevealSpeed;
 
             // Mask Step Function
             float _HiddenValue, _FeatherValue;
@@ -95,8 +99,9 @@ Shader "Intro/QuadShader"
                 // step(x,y) if - If y is greater than or equal to x return 1 otherwise return 0.
                 
                 float hidden = smoothstep(maskColor.r - _FeatherValue, maskColor.r + _FeatherValue, _HiddenValue);
-                float hiddenTop = step(  _HiddenValue - _FeatherValue,maskColor.r);
-                float hiddenBottom = step( _HiddenValue + _FeatherValue, maskColor.r);
+                float hiddenAnim = sin(_Time.y * _RevealSpeed) * _RevealAnimation + _RevealAnimation; //0; //
+                float hiddenTop = step(  _HiddenValue - _FeatherValue + hiddenAnim, maskColor.r);
+                float hiddenBottom = step( _HiddenValue + _FeatherValue + hiddenAnim, maskColor.r);
                 float hiddenDifference = hiddenTop - hiddenBottom;
                 //return fixed4(0,0,revealDifference,1);
 
