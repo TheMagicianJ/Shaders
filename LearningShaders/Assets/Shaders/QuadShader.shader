@@ -38,7 +38,7 @@ Shader "Intro/QuadShader"
         {
             CGPROGRAM
             #pragma vertex vert
-            #pragma fragment frag
+            #pragma fragment frag   
 
             #include "UnityCG.cginc"
             // Main Texture
@@ -100,7 +100,7 @@ Shader "Intro/QuadShader"
                 
                 float hidden = smoothstep(maskColor.r - _FeatherValue, maskColor.r + _FeatherValue, _HiddenValue);
                 float hiddenAnim = sin(_Time.y * _RevealSpeed) * _RevealAnimation + _RevealAnimation; //0; //
-                float hiddenTop = step(  _HiddenValue - _FeatherValue + hiddenAnim, maskColor.r);
+                float hiddenTop = step(_HiddenValue - _FeatherValue + hiddenAnim, maskColor.r);
                 float hiddenBottom = step( _HiddenValue + _FeatherValue + hiddenAnim, maskColor.r);
                 float hiddenDifference = hiddenTop - hiddenBottom;
                 //return fixed4(0,0,revealDifference,1);
